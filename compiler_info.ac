@@ -1,5 +1,5 @@
-// MIPS C Compiler Backend Information File
-// Part of MIPS ArchC Model
+// OpenISA C Compiler Backend Information File
+// Part of OpenISA ArchC Model
 
 //====================-- Machine specific rules --============================//
 

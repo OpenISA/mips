@@ -13,20 +13,20 @@
  ******************************************************/
  
 
-#ifndef mips_SYSCALL_H
-#define mips_SYSCALL_H
+#ifndef openisa_SYSCALL_H
+#define openisa_SYSCALL_H
 
-#include "mips_arch.H"
-#include "mips_arch_ref.H"
-#include "mips_parms.H"
+#include "openisa_arch.H"
+#include "openisa_arch_ref.H"
+#include "openisa_parms.H"
 #include "ac_syscall.H"
 
-//mips system calls
-class mips_syscall : public ac_syscall<mips_parms::ac_word, mips_parms::ac_Hword>, public mips_arch_ref
+//openisa system calls
+class openisa_syscall : public ac_syscall<openisa_parms::ac_word, openisa_parms::ac_Hword>, public openisa_arch_ref
 {
 public:
-  mips_syscall(mips_arch& ref) : ac_syscall<mips_parms::ac_word, mips_parms::ac_Hword>(ref, mips_parms::AC_RAMSIZE), mips_arch_ref(ref) {};
-  virtual ~mips_syscall() {};
+  openisa_syscall(openisa_arch& ref) : ac_syscall<openisa_parms::ac_word, openisa_parms::ac_Hword>(ref, openisa_parms::AC_RAMSIZE), openisa_arch_ref(ref) {};
+  virtual ~openisa_syscall() {};
 
   void get_buffer(int argn, unsigned char* buf, unsigned int size);
   void set_buffer(int argn, unsigned char* buf, unsigned int size);

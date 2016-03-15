@@ -1,0 +1,27 @@
+/**
+ * @file      openisa.ac
+ *
+ * @version   1.0
+ *
+ * @brief     The ArchC OpenISA functional model.
+ *
+ */
+
+AC_ARCH(openisa){
+
+  ac_mem   DM:512M;
+  ac_regbank RB:64;
+  ac_regbank RBS:64;
+  ac_regbank RBD:64;
+  ac_reg id;
+  ac_reg cc;
+  ac_reg ldireg;
+  ac_wordsize 32;
+
+  ARCH_CTOR(openisa) {
+
+    ac_isa("openisa_isa.ac");
+    set_endian("little");
+
+  };
+};
