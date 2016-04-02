@@ -12,7 +12,7 @@ AC_ISA(openisa){
   ac_format PL18  = "%op:6 %extop1:2 %extop2:4 %extop3:2     %rd:6 %rs:6 %rt:6";
   ac_format PL18i = "%op:6 %extop1:2 %extop2:4 %extop3:2              %pl18:18";
   ac_format PL16  =
-      "%op:6 %extop1:2 %extop2:4 %extop3:2 %extop4:2              %halfword:16";
+      "%op:6 %extop1:2 %extop2:4 %extop3:2 %extop4:2             %halfword:16:s";
   ac_format PL12  =
       "%op:6 %extop1:2 %extop2:4 %extop3:2 %extop4:2 %extop5:4     %rs:6 %rt:6";
   ac_format PL6   =
@@ -28,7 +28,7 @@ AC_ISA(openisa){
   ac_instr<PL26i> addi, slti, sltiu, andi, ori, xori;
   ac_instr<PL26i> jeq, jne, ll, sc;
 
-  ac_instr<PL24> mul, div, divu, ext;
+  ac_instr<PL24> mul, mulu, div, divu, ext;
 
   ac_instr<PL20> jlez, jgtz, jltz, jgez, ldi;
 
@@ -37,6 +37,8 @@ AC_ISA(openisa){
   ac_instr<PL18> shl, shr, asr, shlr, shrr, asrr;
   ac_instr<PL18> movz, movn, ror, rorr;
   ac_instr<PL18i> ldihi;
+
+  ac_instr<PL16> rcall;
 
   ac_instr<PL12> callr, teq, clz, seb, seh;
 
@@ -67,6 +69,7 @@ AC_ISA(openisa){
   ac_instr<PL12> truncwd, truncws;
   ac_instr<PL12> sqrtd, sqrts;
   ac_instr<PL12> movtd, movts, movfd, movfs, movf, movt, mfhc1, mthc1;
+  ac_instr<PL12> roundwd, roundws, ceilwd, ceilws, floorwd, floorws;
 
   ac_asm_map reg {
      "$"[0..31] = [0..31];
@@ -215,6 +218,9 @@ AC_ISA(openisa){
 
     ext.set_asm("ext %reg, %reg, %imm, %imm", rd, rs, rv, rt);
     ext.set_decoder(op=0x1d, extop1=3);
+
+    mulu.set_asm("mulu %reg, %reg, %reg, %reg", rv, rd, rs, rt);
+    mulu.set_decoder(op=0x25, extop1=0);
 
     // PL24 FPU instructions
 
@@ -372,8 +378,11 @@ AC_ISA(openisa){
     bc1fl.set_asm("bc1fl %exp(pcrel)", halfword);
     bc1fl.set_decoder(op=0x21, extop1=0, extop2=0, extop3=0, extop4=3);
 
+    rcall.set_asm("rcall %exp(pcrel)", halfword);
+    rcall.set_decoder(op=0x21, extop1=0, extop2=0, extop3=1, extop4=3);
+
     // PL12 instructions
-    callr.set_asm("callr %reg", rs);
+    callr.set_asm("callr %reg, %imm", rs, rt);
     callr.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=0,
                       extop5=0);
 
@@ -544,6 +553,31 @@ AC_ISA(openisa){
     mthc1.set_asm("mthc1 %reg, %freg", rs, rt);
     mthc1.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=2,
                     extop5=0xa);
+
+    roundwd.set_asm("round.w.d %reg, %freg", rs, rt);
+    roundwd.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=2,
+                        extop5=0xb);
+
+    roundws.set_asm("round.w.s %reg, %freg", rs, rt);
+    roundws.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=2,
+                        extop5=0xc);
+
+    ceilwd.set_asm("ceil.w.d %reg, %freg", rs, rt);
+    ceilwd.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=2,
+                        extop5=0xd);
+
+    ceilws.set_asm("ceil.w.s %reg, %freg", rs, rt);
+    ceilws.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=2,
+                        extop5=0xe);
+
+    floorwd.set_asm("floor.w.d %reg, %freg", rs, rt);
+    floorwd.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=2,
+                        extop5=0xf);
+
+    floorws.set_asm("floor.w.s %reg, %freg", rs, rt);
+    floorws.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=3,
+                        extop5=0x0);
+
 
     // PL6 instructions
 

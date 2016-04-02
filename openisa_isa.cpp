@@ -4,9 +4,10 @@
 #include "openisa_isa.H"
 #include "openisa_bhv_macros.H"
 #include "openisa_isa_init.cpp"
+#include <cfenv>
 
 // If you want debug information for this model, uncomment next line
-//#define DEBUG_MODEL
+#define DEBUG_MODEL
 #include "ac_debug_model.H"
 
 //! User defined macros to reference registers.
@@ -23,6 +24,7 @@ static int processors_started = 0;
 // Generic instruction behavior method.
 void ac_behavior(instruction) {
   dbg_printf("----- PC=%#x ----- %lld\n", (int)ac_pc, ac_instr_counter);
+  ac_pc += 4;
 };
 
 //  Instruction Format behavior methods.
@@ -52,7 +54,7 @@ void ac_behavior(end) { dbg_printf("@@@ end behavior @@@\n"); }
 // Individual instructions emulation code
 void ac_behavior(ldb) {
   char byte;
-  dbg_printf("ldb r%d, %d(r%d)\n", rt, imm & 0x3FFF, rs);
+  dbg_printf("ldb r%d, %d(r%d)\n", rt, imm, rs);
   byte = DATA_PORT->read_byte(RB[rs] + imm);
   RB[rt] = (ac_Sword)byte;
   dbg_printf("Result = %#x\n", RB[rt]);
@@ -60,7 +62,7 @@ void ac_behavior(ldb) {
 
 void ac_behavior(ldbu) {
   unsigned char byte;
-  dbg_printf("ldbu r%d, %d(r%d)\n", rt, imm & 0x3FFF, rs);
+  dbg_printf("ldbu r%d, %d(r%d)\n", rt, imm, rs);
   byte = DATA_PORT->read_byte(RB[rs] + imm);
   RB[rt] = byte;
   dbg_printf("Result = %#x\n", RB[rt]);
@@ -68,7 +70,7 @@ void ac_behavior(ldbu) {
 
 void ac_behavior(ldh) {
   short int half;
-  dbg_printf("ldh r%d, %d(r%d)\n", rt, imm & 0x3FFF, rs);
+  dbg_printf("ldh r%d, %d(r%d)\n", rt, imm, rs);
   half = DATA_PORT->read_half(RB[rs] + imm);
   RB[rt] = (ac_Sword)half;
   dbg_printf("Result = %#x\n", RB[rt]);
@@ -76,20 +78,20 @@ void ac_behavior(ldh) {
 
 void ac_behavior(ldhu) {
   unsigned short int half;
-  dbg_printf("ldhu r%d, %d(r%d)\n", rt, imm & 0x3FFF, rs);
+  dbg_printf("ldhu r%d, %d(r%d)\n", rt, imm, rs);
   half = DATA_PORT->read_half(RB[rs] + imm);
   RB[rt] = half;
   dbg_printf("Result = %#x\n", RB[rt]);
 }
 
 void ac_behavior(ldw) {
-  dbg_printf("ldw r%d, %d(r%d)\n", rt, imm & 0x3FFF, rs);
+  dbg_printf("ldw r%d, %d(r%d)\n", rt, imm, rs);
   RB[rt] = DATA_PORT->read(RB[rs] + imm);
   dbg_printf("Result = %#x\n", RB[rt]);
 }
 
 void ac_behavior(ldc1) {
-  dbg_printf("ldc1 %%f%d, %d(r%d)\n", rt, imm & 0x3FFF, rs);
+  dbg_printf("ldc1 %%f%d, %d(r%d)\n", rt, imm, rs);
   RBD[rt + 1] = DATA_PORT->read(RB[rs] + imm);
   RBD[rt] = DATA_PORT->read(RB[rs] + imm + 4);
   double temp = load_double(rt);
@@ -97,7 +99,7 @@ void ac_behavior(ldc1) {
 }
 
 void ac_behavior(lwc1) {
-  dbg_printf("lwc1 %%f%d, %d(r%d)\n", rt, imm & 0x3FFF, rs);
+  dbg_printf("lwc1 %%f%d, %d(r%d)\n", rt, imm, rs);
   RBS[rt] = DATA_PORT->read(RB[rs] + imm);
   dbg_printf("Result = %f\n", (float)RBS[rt]);
 }
@@ -118,7 +120,7 @@ void ac_behavior(lwxc1) {
 }
 
 void ac_behavior(ldwl) {
-  dbg_printf("ldwl r%d, %d(r%d)\n", rt, imm & 0x3FFF, rs);
+  dbg_printf("ldwl r%d, %d(r%d)\n", rt, imm, rs);
   unsigned int addr, offset;
   ac_Uword data;
 
@@ -132,7 +134,7 @@ void ac_behavior(ldwl) {
 }
 
 void ac_behavior(ldwr) {
-  dbg_printf("ldwr r%d, %d(r%d)\n", rt, imm & 0x3FFF, rs);
+  dbg_printf("ldwr r%d, %d(r%d)\n", rt, imm, rs);
   unsigned int addr, offset;
   ac_Uword data;
 
@@ -147,7 +149,7 @@ void ac_behavior(ldwr) {
 
 void ac_behavior(stb) {
   unsigned char byte;
-  dbg_printf("stb r%d, %d(r%d)\n", rt, imm & 0x3FFF, rs);
+  dbg_printf("stb r%d, %d(r%d)\n", rt, imm, rs);
   byte = RB[rt] & 0xFF;
   DATA_PORT->write_byte(RB[rs] + imm, byte);
   dbg_printf("Result = %#x\n", (int)byte);
@@ -155,14 +157,14 @@ void ac_behavior(stb) {
 
 void ac_behavior(sth) {
   unsigned short int half;
-  dbg_printf("sth r%d, %d(r%d)\n", rt, imm & 0x3FFF, rs);
+  dbg_printf("sth r%d, %d(r%d)\n", rt, imm, rs);
   half = RB[rt] & 0xFFFF;
   DATA_PORT->write_half(RB[rs] + imm, half);
   dbg_printf("Result = %#x\n", (int)half);
 }
 
 void ac_behavior(stw) {
-  dbg_printf("stw r%d, %d(r%d)\n", rt, imm & 0x3FFF, rs);
+  dbg_printf("stw r%d, %d(r%d)\n", rt, imm, rs);
   DATA_PORT->write(RB[rs] + imm, RB[rt]);
   dbg_printf("Result = %#x\n", RB[rt]);
 }
@@ -427,7 +429,7 @@ void ac_behavior(sqrts) {
 }
 
 void ac_behavior(bc1f) {
-  dbg_printf("bc1f %d\n", halfword & 0xFFFF);
+  dbg_printf("bc1f %d\n", halfword);
   if (cc == 0) {
     ac_pc = ac_pc + (halfword << 2);
     dbg_printf("Taken to %#x\n", ac_pc + (halfword << 2));
@@ -435,7 +437,7 @@ void ac_behavior(bc1f) {
 }
 
 void ac_behavior(bc1fl) {
-  dbg_printf("bc1fl %d\n", halfword & 0xFFFF);
+  dbg_printf("bc1fl %d\n", halfword);
   if (cc == 0) {
     ac_pc = ac_pc + (halfword << 2);
     dbg_printf("Taken to %#x\n", ac_pc + (halfword << 2));
@@ -443,7 +445,7 @@ void ac_behavior(bc1fl) {
 }
 
 void ac_behavior(bc1t) {
-  dbg_printf("bc1t %d\n", halfword & 0xFFFF);
+  dbg_printf("bc1t %d\n", halfword);
   if (cc == 1) {
     ac_pc = ac_pc + (halfword << 2);
     dbg_printf("Taken to %#x\n", ac_pc + (halfword << 2));
@@ -451,11 +453,21 @@ void ac_behavior(bc1t) {
 }
 
 void ac_behavior(bc1tl) {
-  dbg_printf("bc1tl %d\n", halfword & 0xFFFF);
+  dbg_printf("bc1tl %d\n", halfword);
   if (cc == 1) {
-    ac_pc = ac_pc + (ac_pc << 2);
-    dbg_printf("Taken to %#x\n", ac_pc + (ac_pc << 2));
+    ac_pc = ac_pc + (halfword << 2);
+    dbg_printf("Taken to %#x\n", ac_pc + (halfword << 2));
   }
+}
+
+void ac_behavior(rcall) {
+  dbg_printf("rcall %d\n", halfword);
+  RB[Ra] = ac_pc + 4;
+  ac_pc = ac_pc + (halfword << 2);
+
+  //  dbg_printf("Return = %#x\n", RB[Ra].read());
+  //  dbg_printf("Taken to %#x\n", ac_pc);
+
 }
 
 void ac_behavior(ldihi) {
@@ -466,13 +478,13 @@ void ac_behavior(ldihi) {
 }
 
 void ac_behavior(sdc1) {
-  dbg_printf("sdc1 %%f%d, %d(r%d)\n", rt, imm & 0x3FFF, rs);
+  dbg_printf("sdc1 %%f%d, %d(r%d)\n", rt, imm, rs);
   DATA_PORT->write(RB[rs] + imm + 4, RBD[rt]);
   DATA_PORT->write(RB[rs] + imm, RBD[rt + 1]);
 }
 
 void ac_behavior(swc1) {
-  dbg_printf("swc1 %%f%d, %d(r%d)\n", rt, imm & 0x3FFF, rs);
+  dbg_printf("swc1 %%f%d, %d(r%d)\n", rt, imm, rs);
   DATA_PORT->write(RB[rs] + imm, RBS[rt]);
 }
 
@@ -506,6 +518,56 @@ void ac_behavior(mthc1) {
   save_double(temp, rt);
 }
 
+void ac_behavior(roundwd) {
+  dbg_printf("round.w.d %%%d, %%f%d\n", rs, rt);
+  if (fesetround(FE_TONEAREST) == 0) {
+    fprintf(stderr, "Failed to set rounding mode.\n");
+    exit(EXIT_FAILURE);
+  }
+  int32_t res = (int) nearbyint(load_double(rt));
+  RB[rt] = res;
+  dbg_printf("Result = %d\n", res);
+}
+
+void ac_behavior(roundws) {
+  dbg_printf("round.w.s %%%d, %%f%d\n", rs, rt);
+  if (fesetround(FE_TONEAREST) == 0) {
+    fprintf(stderr, "Failed to set rounding mode.\n");
+    exit(EXIT_FAILURE);
+  }
+  int32_t res = (int) nearbyintf(load_float(rt));
+  RB[rt] = res;
+  dbg_printf("Result = %d\n", res);
+}
+
+void ac_behavior(ceilwd) {
+  dbg_printf("ceil.w.d %%%d, %%f%d\n", rs, rt);
+  int32_t res = (int) ceil(load_double(rt));
+  RB[rt] = res;
+  dbg_printf("Result = %d\n", res);
+}
+
+void ac_behavior(ceilws) {
+  dbg_printf("ceil.w.s %%%d, %%f%d\n", rs, rt);
+  int32_t res = (int) ceilf(load_float(rt));
+  RB[rt] = res;
+  dbg_printf("Result = %d\n", res);
+}
+
+void ac_behavior(floorwd) {
+  dbg_printf("floor.w.d %%%d, %%f%d\n", rs, rt);
+  int32_t res = (int) floor(load_double(rt));
+  RB[rt] = res;
+  dbg_printf("Result = %d\n", res);
+}
+
+void ac_behavior(floorws) {
+  dbg_printf("floor.w.s %%%d, %%f%d\n", rs, rt);
+  int32_t res = (int) floorf(load_float(rt));
+  RB[rt] = res;
+  dbg_printf("Result = %d\n", res);
+}
+
 void ac_behavior(stwl) {
   dbg_printf("stwl r%d, %d(r%d)\n", rt, imm & 0x3FFF, rs);
   unsigned int addr, offset;
@@ -521,7 +583,7 @@ void ac_behavior(stwl) {
 }
 
 void ac_behavior(stwr) {
-  dbg_printf("stwr r%d, %d(r%d)\n", rt, imm & 0x3FFF, rs);
+  dbg_printf("stwr r%d, %d(r%d)\n", rt, imm, rs);
   unsigned int addr, offset;
   ac_Uword data;
 
@@ -535,13 +597,13 @@ void ac_behavior(stwr) {
 }
 
 void ac_behavior(addi) {
-  dbg_printf("addi r%d, r%d, %d\n", rt, rs, imm & 0x3FFF);
+  dbg_printf("addi r%d, r%d, %d\n", rt, rs, imm);
   RB[rt] = RB[rs] + imm;
   dbg_printf("Result = %#x\n", RB[rt]);
 }
 
 void ac_behavior(slti) {
-  dbg_printf("slti r%d, r%d, %d\n", rt, rs, imm & 0x3FFF);
+  dbg_printf("slti r%d, r%d, %d\n", rt, rs, imm);
   // Set the RD if RS< IMM
   if ((ac_Sword)RB[rs] < (ac_Sword)imm)
     RB[rt] = 1;
@@ -554,7 +616,7 @@ void ac_behavior(slti) {
 void ac_behavior(sltiu) {
   dbg_printf("sltiu r%d, r%d, %d\n", rt, rs, imm & 0x3FFF);
   // Set the RD if RS< IMM
-  if ((ac_Uword)RB[rs] < (ac_Uword)imm)
+  if ((ac_Uword)RB[rs] < (ac_Uword)(imm & 0x3FFF))
     RB[rt] = 1;
   // Else reset RD
   else
@@ -692,6 +754,24 @@ void ac_behavior(mul) {
   dbg_printf("Result = %#llx\n", result);
 }
 
+void ac_behavior(mulu) {
+  dbg_printf("mulu r%d, r%d, r%d, r%d\n", rv, rd, rs, rt);
+
+  unsigned long long result;
+  int half_result;
+
+  result = (ac_Uword)RB[rs];
+  result *= (ac_Uword)RB[rt];
+
+  half_result = (result & 0xFFFFFFFF);
+  RB[rd] = half_result;
+
+  half_result = ((result >> 32) & 0xFFFFFFFF);
+  RB[rv] = half_result;
+
+  dbg_printf("Result = %#llx\n", result);
+}
+
 void ac_behavior(div) {
   dbg_printf("div r%d, r%d, r%d, r%d\n", rv, rd, rs, rt);
   RB[rd] = (ac_Sword)RB[rs] / (ac_Sword)RB[rt];
@@ -706,6 +786,10 @@ void ac_behavior(divu) {
 
 void ac_behavior(jump) {
   dbg_printf("jump %d\n", laddr);
+  if (laddr == 0) {
+    printf("Jump to address zero\n");
+    exit(-1);
+  }
   laddr = laddr << 2;
   ac_pc = (ac_pc & 0xF0000000) | laddr;
   dbg_printf("Target = %#x\n", (ac_pc & 0xF0000000) | laddr);
@@ -729,10 +813,10 @@ void ac_behavior(jumpr) {
 }
 
 void ac_behavior(callr) {
-  dbg_printf("jalr r%d, r%d\n", rs);
-  ac_pc = RB[rs];
-  dbg_printf("Target = %#x\n", RB[rs]);
+  dbg_printf("callr r%d\n", rt);
   RB[Ra] = ac_pc + 4;
+  ac_pc = RB[rt];
+  dbg_printf("Target = %#x\n", RB[rt]);
   dbg_printf("Return = %#x\n", ac_pc + 4);
 }
 
