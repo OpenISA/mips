@@ -7,7 +7,7 @@
 #include <cfenv>
 
 // If you want debug information for this model, uncomment next line
-#define DEBUG_MODEL
+//#define DEBUG_MODEL
 #include "ac_debug_model.H"
 
 //! User defined macros to reference registers.
@@ -462,7 +462,7 @@ void ac_behavior(bc1tl) {
 
 void ac_behavior(rcall) {
   dbg_printf("rcall %d\n", halfword);
-  RB[Ra] = ac_pc + 4;
+  RB[Ra] = ac_pc;
   ac_pc = ac_pc + (halfword << 2);
 
   //  dbg_printf("Return = %#x\n", RB[Ra].read());
@@ -569,7 +569,7 @@ void ac_behavior(floorws) {
 }
 
 void ac_behavior(stwl) {
-  dbg_printf("stwl r%d, %d(r%d)\n", rt, imm & 0x3FFF, rs);
+  dbg_printf("stwl r%d, %d(r%d)\n", rt, imm, rs);
   unsigned int addr, offset;
   ac_Uword data;
 
@@ -746,10 +746,12 @@ void ac_behavior(mul) {
   result *= (ac_Sword)RB[rt];
 
   half_result = (result & 0xFFFFFFFF);
-  RB[rd] = half_result;
+  if (rd != 0)
+    RB[rd] = half_result;
 
   half_result = ((result >> 32) & 0xFFFFFFFF);
-  RB[rv] = half_result;
+  if (rv != 0)
+    RB[rv] = half_result;
 
   dbg_printf("Result = %#llx\n", result);
 }
@@ -764,24 +766,30 @@ void ac_behavior(mulu) {
   result *= (ac_Uword)RB[rt];
 
   half_result = (result & 0xFFFFFFFF);
-  RB[rd] = half_result;
+  if (rd != 0)
+    RB[rd] = half_result;
 
   half_result = ((result >> 32) & 0xFFFFFFFF);
-  RB[rv] = half_result;
+  if (rv != 0)
+    RB[rv] = half_result;
 
   dbg_printf("Result = %#llx\n", result);
 }
 
 void ac_behavior(div) {
   dbg_printf("div r%d, r%d, r%d, r%d\n", rv, rd, rs, rt);
-  RB[rd] = (ac_Sword)RB[rs] / (ac_Sword)RB[rt];
-  RB[rv] = (ac_Sword)RB[rs] % (ac_Sword)RB[rt];
+  if (rd != 0)
+    RB[rd] = (ac_Sword)RB[rs] / (ac_Sword)RB[rt];
+  if (rv != 0)
+    RB[rv] = (ac_Sword)RB[rs] % (ac_Sword)RB[rt];
 }
 
 void ac_behavior(divu) {
   dbg_printf("divu r%d, r%d, r%d, r%d\n", rv, rd, rs, rt);
-  RB[rd] = RB[rs] / RB[rt];
-  RB[rv] = RB[rs] % RB[rt];
+  if (rd != 0)
+    RB[rd] = RB[rs] / RB[rt];
+  if (rv != 0)
+    RB[rv] = RB[rs] % RB[rt];
 }
 
 void ac_behavior(jump) {
@@ -797,7 +805,7 @@ void ac_behavior(jump) {
 
 void ac_behavior(call) {
   dbg_printf("call %d\n", addr);
-  RB[Ra] = ac_pc + 4;
+  RB[Ra] = ac_pc;
 
   addr = addr << 2;
   ac_pc = (ac_pc & 0xF0000000) | addr;
@@ -814,14 +822,14 @@ void ac_behavior(jumpr) {
 
 void ac_behavior(callr) {
   dbg_printf("callr r%d\n", rt);
-  RB[Ra] = ac_pc + 4;
+  RB[Ra] = ac_pc;
   ac_pc = RB[rt];
   dbg_printf("Target = %#x\n", RB[rt]);
   dbg_printf("Return = %#x\n", ac_pc + 4);
 }
 
 void ac_behavior(jeq) {
-  dbg_printf("jeq r%d, r%d, %d\n", rs, rt, imm & 0x3FFF);
+  dbg_printf("jeq r%d, r%d, %d\n", rs, rt, imm);
   if (RB[rs] == RB[rt]) {
     ac_pc = ac_pc + (imm << 2);
     dbg_printf("Taken to %#x\n", ac_pc + (imm << 2));
@@ -877,7 +885,13 @@ void ac_behavior(ldi) {
 }
 
 void ac_behavior(sys_call) {
-  uint32_t sysnum = RB[2];
+  uint32_t sysnum = RB[4];
+  // relocating regs
+  RB[4] = RB[5];
+  RB[5] = RB[6];
+  RB[6] = RB[7];
+  RB[7] = RB[8];
+  RB[8] = RB[9];
   dbg_printf("Syscall number: 0x%X\t(%d)\n", sysnum, sysnum);
   if (syscall.process_syscall(sysnum) == -1) {
     fprintf(stderr, "Warning: Unimplemented syscall.\n");
