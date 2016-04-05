@@ -7,7 +7,7 @@
 #include <cfenv>
 
 // If you want debug information for this model, uncomment next line
-//#define DEBUG_MODEL
+#define DEBUG_MODEL
 #include "ac_debug_model.H"
 
 //! User defined macros to reference registers.
@@ -57,6 +57,7 @@ void ac_behavior(ldb) {
   dbg_printf("ldb r%d, %d(r%d)\n", rt, imm, rs);
   byte = DATA_PORT->read_byte(RB[rs] + imm);
   RB[rt] = (ac_Sword)byte;
+  dbg_printf("* r%d <= MEM[%x]\n", rt, RB[rs] + imm);
   dbg_printf("Result = %#x\n", RB[rt]);
 }
 
@@ -65,6 +66,7 @@ void ac_behavior(ldbu) {
   dbg_printf("ldbu r%d, %d(r%d)\n", rt, imm, rs);
   byte = DATA_PORT->read_byte(RB[rs] + imm);
   RB[rt] = byte;
+  dbg_printf("* r%d <= MEM[%x]\n", rt, RB[rs] + imm);
   dbg_printf("Result = %#x\n", RB[rt]);
 }
 
@@ -73,6 +75,7 @@ void ac_behavior(ldh) {
   dbg_printf("ldh r%d, %d(r%d)\n", rt, imm, rs);
   half = DATA_PORT->read_half(RB[rs] + imm);
   RB[rt] = (ac_Sword)half;
+  dbg_printf("* r%d <= MEM[%x]\n", rt, RB[rs] + imm);
   dbg_printf("Result = %#x\n", RB[rt]);
 }
 
@@ -81,12 +84,14 @@ void ac_behavior(ldhu) {
   dbg_printf("ldhu r%d, %d(r%d)\n", rt, imm, rs);
   half = DATA_PORT->read_half(RB[rs] + imm);
   RB[rt] = half;
+  dbg_printf("* r%d <= MEM[%x]\n", rt, RB[rs] + imm);
   dbg_printf("Result = %#x\n", RB[rt]);
 }
 
 void ac_behavior(ldw) {
   dbg_printf("ldw r%d, %d(r%d)\n", rt, imm, rs);
   RB[rt] = DATA_PORT->read(RB[rs] + imm);
+  dbg_printf("* r%d <= MEM[%x]\n", rt, RB[rs] + imm);
   dbg_printf("Result = %#x\n", RB[rt]);
 }
 
@@ -95,12 +100,15 @@ void ac_behavior(ldc1) {
   RBD[rt + 1] = DATA_PORT->read(RB[rs] + imm);
   RBD[rt] = DATA_PORT->read(RB[rs] + imm + 4);
   double temp = load_double(rt);
+  dbg_printf("* f%d <= MEM[%x]\n", rt + 1, RB[rs] + imm);
+  dbg_printf("* f%d <= MEM[%x]\n", rt, RB[rs] + imm + 4);
   dbg_printf("Result = %lf\n", temp);
 }
 
 void ac_behavior(lwc1) {
   dbg_printf("lwc1 %%f%d, %d(r%d)\n", rt, imm, rs);
   RBS[rt] = DATA_PORT->read(RB[rs] + imm);
+  dbg_printf("* f%d <= MEM[%x]\n", rt, RB[rs] + imm);
   dbg_printf("Result = %f\n", (float)RBS[rt]);
 }
 
@@ -109,6 +117,8 @@ void ac_behavior(ldxc1) {
   RBD[rd + 1] = DATA_PORT->read(RB[rt] + RB[rs]);
   RBD[rd] = DATA_PORT->read(RB[rt] + RB[rs] + 4);
   double temp = load_double(rd);
+  dbg_printf("* f%d <= MEM[%x]\n", rd + 1, RB[rs] + RB[rt]);
+  dbg_printf("* f%d <= MEM[%x]\n", rd, RB[rs] + RB[rt] + 4);
   dbg_printf("Result = %lf\n", temp);
 }
 
@@ -116,6 +126,7 @@ void ac_behavior(lwxc1) {
   dbg_printf("lwxc1 %%f%d, %%%d(%%%d)\n", rd, rt, rs);
   RBS[rd] = DATA_PORT->read(RB[rt] + RB[rs]);
   float temp = load_float(rd);
+  dbg_printf("* f%d <= MEM[%x]\n", rd, RB[rs] + RB[rt]);
   dbg_printf("Result = %f\n", temp);
 }
 
@@ -130,6 +141,7 @@ void ac_behavior(ldwl) {
   data <<= offset;
   data |= RB[rt] & ((1 << offset) - 1);
   RB[rt] = data;
+  dbg_printf("* r%d <= MEM[%x]\n", rt, RB[rs] + imm);
   dbg_printf("Result = %#x\n", RB[rt]);
 }
 
@@ -144,6 +156,7 @@ void ac_behavior(ldwr) {
   data >>= offset;
   data |= RB[rt] & (0xFFFFFFFF << (32 - offset));
   RB[rt] = data;
+  dbg_printf("* r%d <= MEM[%x]\n", rt, RB[rs] + imm);
   dbg_printf("Result = %#x\n", RB[rt]);
 }
 
@@ -152,6 +165,7 @@ void ac_behavior(stb) {
   dbg_printf("stb r%d, %d(r%d)\n", rt, imm, rs);
   byte = RB[rt] & 0xFF;
   DATA_PORT->write_byte(RB[rs] + imm, byte);
+  dbg_printf("* MEM[%x] <= r%d\n", RB[rs] + imm, rt);
   dbg_printf("Result = %#x\n", (int)byte);
 }
 
@@ -160,12 +174,14 @@ void ac_behavior(sth) {
   dbg_printf("sth r%d, %d(r%d)\n", rt, imm, rs);
   half = RB[rt] & 0xFFFF;
   DATA_PORT->write_half(RB[rs] + imm, half);
+  dbg_printf("* MEM[%x] <= r%d\n", RB[rs] + imm, rt);
   dbg_printf("Result = %#x\n", (int)half);
 }
 
 void ac_behavior(stw) {
   dbg_printf("stw r%d, %d(r%d)\n", rt, imm, rs);
   DATA_PORT->write(RB[rs] + imm, RB[rt]);
+  dbg_printf("* MEM[%x] <= r%d\n", RB[rs] + imm, rt);
   dbg_printf("Result = %#x\n", RB[rt]);
 }
 
@@ -481,22 +497,28 @@ void ac_behavior(sdc1) {
   dbg_printf("sdc1 %%f%d, %d(r%d)\n", rt, imm, rs);
   DATA_PORT->write(RB[rs] + imm + 4, RBD[rt]);
   DATA_PORT->write(RB[rs] + imm, RBD[rt + 1]);
+  dbg_printf("* MEM[%x] <= r%d\n", RB[rs] + imm + 4, rt);
+  dbg_printf("* MEM[%x] <= r%d\n", RB[rs] + imm, rt + 1);
 }
 
 void ac_behavior(swc1) {
   dbg_printf("swc1 %%f%d, %d(r%d)\n", rt, imm, rs);
   DATA_PORT->write(RB[rs] + imm, RBS[rt]);
+  dbg_printf("* MEM[%x] <= r%d\n", RB[rs] + imm, rt);
 }
 
 void ac_behavior(sdxc1) {
   dbg_printf("sdxc1 %%f%d, %%%d(%%%d)\n", rd, rt, rs);
   DATA_PORT->write(RB[rt] + RB[rs] + 4, RBD[rd]);
   DATA_PORT->write(RB[rt] + RB[rs], RBD[rd + 1]);
+  dbg_printf("* MEM[%x] <= r%d\n", RB[rs] + RB[rt] + 4, rd);
+  dbg_printf("* MEM[%x] <= r%d\n", RB[rs] + RB[rt], rd + 1);
 }
 
 void ac_behavior(swxc1) {
   dbg_printf("swxc1 %%f%d, %%%d(%%%d)\n", rd, rt, rs);
   DATA_PORT->write(RB[rt] + RB[rs], RBS[rd]);
+  dbg_printf("* MEM[%x] <= r%d\n", RB[rs] + RB[rt], rd);
 }
 
 void ac_behavior(mfhc1) {
@@ -579,6 +601,7 @@ void ac_behavior(stwl) {
   data >>= offset;
   data |= DATA_PORT->read(addr & 0xFFFFFFFC) & (0xFFFFFFFF << (32 - offset));
   DATA_PORT->write(addr & 0xFFFFFFFC, data);
+  dbg_printf("* MEM[%x] <= r%d\n", RB[rs] + imm, rt);
   dbg_printf("Result = %#x\n", data);
 }
 
@@ -593,6 +616,7 @@ void ac_behavior(stwr) {
   data <<= offset;
   data |= DATA_PORT->read(addr & 0xFFFFFFFC) & ((1 << offset) - 1);
   DATA_PORT->write(addr & 0xFFFFFFFC, data);
+  dbg_printf("* MEM[%x] <= r%d\n", RB[rs] + imm, rt);
   dbg_printf("Result = %#x\n", data);
 }
 
@@ -810,8 +834,8 @@ void ac_behavior(call) {
   addr = addr << 2;
   ac_pc = (ac_pc & 0xF0000000) | addr;
 
-  dbg_printf("Target = %#x\n", (ac_pc & 0xF0000000) | addr);
-  dbg_printf("Return = %#x\n", ac_pc + 4);
+  dbg_printf("Target = %#x\n", (unsigned)ac_pc);
+  dbg_printf("Return = %#x\n", RB[Ra]);
 }
 
 void ac_behavior(jumpr) {
@@ -832,52 +856,52 @@ void ac_behavior(jeq) {
   dbg_printf("jeq r%d, r%d, %d\n", rs, rt, imm);
   if (RB[rs] == RB[rt]) {
     ac_pc = ac_pc + (imm << 2);
-    dbg_printf("Taken to %#x\n", ac_pc + (imm << 2));
+    dbg_printf("Taken to %#x\n", (unsigned)ac_pc);
   }
 }
 
 void ac_behavior(jne) {
-  dbg_printf("jne r%d, r%d, %d\n", rs, rt, imm & 0x3FFF);
+  dbg_printf("jne r%d, r%d, %d\n", rs, rt, imm);
   if (RB[rs] != RB[rt]) {
     ac_pc = ac_pc + (imm << 2);
-    dbg_printf("Taken to %#x\n", ac_pc + (imm << 2));
+    dbg_printf("Taken to %#x\n", (unsigned)ac_pc);
   }
 }
 
 void ac_behavior(jlez) {
-  dbg_printf("jlez r%d, %d\n", rt, imm & 0x3FFF);
+  dbg_printf("jlez r%d, %d\n", rt, imm);
   if ((RB[rt] == 0) || (RB[rt] & 0x80000000)) {
     ac_pc = ac_pc + (imm << 2), 1;
-    dbg_printf("Taken to %#x\n", ac_pc + (imm << 2));
+    dbg_printf("Taken to %#x\n", (unsigned)ac_pc);
   }
 }
 
 void ac_behavior(jgtz) {
-  dbg_printf("jgtz r%d, %d\n", rt, imm & 0x3FFF);
+  dbg_printf("jgtz r%d, %d\n", rt, imm);
   if (!(RB[rt] & 0x80000000) && (RB[rt] != 0)) {
     ac_pc = ac_pc + (imm << 2);
-    dbg_printf("Taken to %#x\n", ac_pc + (imm << 2));
+    dbg_printf("Taken to %#x\n", (unsigned)ac_pc);
   }
 }
 
 void ac_behavior(jltz) {
-  dbg_printf("jltz r%d, %d\n", rt, imm & 0x3FFF);
+  dbg_printf("jltz r%d, %d\n", rt, imm);
   if (RB[rt] & 0x80000000) {
     ac_pc = ac_pc + (imm << 2);
-    dbg_printf("Taken to %#x\n", ac_pc + (imm << 2));
+    dbg_printf("Taken to %#x\n", (unsigned)ac_pc);
   }
 }
 
 void ac_behavior(jgez) {
-  dbg_printf("jgez r%d, %d\n", rt, imm & 0x3FFF);
+  dbg_printf("jgez r%d, %d\n", rt, imm);
   if (!(RB[rt] & 0x80000000)) {
     ac_pc = ac_pc + (imm << 2);
-    dbg_printf("Taken to %#x\n", ac_pc + (imm << 2));
+    dbg_printf("Taken to %#x\n", (unsigned)ac_pc);
   }
 }
 
 void ac_behavior(ldi) {
-  dbg_printf("ldi r%d, %d\n", rt, imm & 0x3FFF);
+  dbg_printf("ldi r%d, %d\n", rt, imm);
   ldireg = rt;
   RB[ldireg] &= 0xFFFFC000;
   RB[ldireg] |= imm & 0x3FFF;
@@ -886,6 +910,11 @@ void ac_behavior(ldi) {
 
 void ac_behavior(sys_call) {
   uint32_t sysnum = RB[4];
+  if (sysnum == 0x100C) {
+    fprintf(stderr, "Warning: fstat unimplemented.\n");
+    RB[2] = -1;
+    return;
+  }
   // relocating regs
   RB[4] = RB[5];
   RB[5] = RB[6];
