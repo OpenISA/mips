@@ -12,7 +12,7 @@ static inline uint32_t rotate_right(uint32_t input, uint32_t shiftamount) {
 
 inline double load_double(uint32_t index) {
   double res;
-  uint64_t input = ((uint64_t)RBD[index]) + (((uint64_t)RBD[index + 1]) << 32);
+  uint64_t input = ((uint64_t)RBD[index + 1]) + (((uint64_t)RBD[index]) << 32);
   memcpy(&res, &input, sizeof(input));
   return res;
 }
@@ -20,8 +20,8 @@ inline double load_double(uint32_t index) {
 inline void save_double(double input, uint32_t index) {
   uint64_t temp;
   memcpy(&temp, &input, sizeof(temp));
-  RBD[index] = temp & 0xFFFFFFFF;
-  RBD[index + 1] = temp >> 32;
+  RBD[index + 1] = temp & 0xFFFFFFFF;
+  RBD[index] = temp >> 32;
 }
 
 inline float load_float(uint32_t index) {

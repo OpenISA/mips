@@ -70,6 +70,7 @@ AC_ISA(openisa){
   ac_instr<PL12> sqrtd, sqrts;
   ac_instr<PL12> movtd, movts, movfd, movfs, movf, movt, mfhc1, mthc1;
   ac_instr<PL12> roundwd, roundws, ceilwd, ceilws, floorwd, floorws;
+  ac_instr<PL12> mflc1, mtlc1;
 
   ac_asm_map reg {
      "$"[0..31] = [0..31];
@@ -578,6 +579,13 @@ AC_ISA(openisa){
     floorws.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=3,
                         extop5=0x0);
 
+    mflc1.set_asm("mflc1 %reg, %freg", rs, rt);
+    mflc1.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=3,
+                    extop5=0x1);
+
+    mtlc1.set_asm("mtlc1 %reg, %freg", rs, rt);
+    mtlc1.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=3,
+                    extop5=0x2);
 
     // PL6 instructions
 
