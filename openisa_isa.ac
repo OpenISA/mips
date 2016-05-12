@@ -7,18 +7,18 @@ AC_ISA(openisa){
   ac_format PL26j = "%op:6                                           %laddr:26";
   ac_format PL26c = "%op:6                                     %num:6 %addr:20";
   ac_format PL26i = "%op:6                               %imm:14:s %rs:6 %rt:6";
-  ac_format PL24  = "%op:6 %extop1:2                   %rv:6 %rd:6 %rs:6 %rt:6";
-  ac_format PL20  = "%op:6 %extop1:2 %extop2:4                 %imm:14:s %rt:6";
-  ac_format PL18  = "%op:6 %extop1:2 %extop2:4 %extop3:2     %rd:6 %rs:6 %rt:6";
-  ac_format PL18i = "%op:6 %extop1:2 %extop2:4 %extop3:2              %pl18:18";
+  ac_format PL24  = "%op:6 %ext1:2                     %rv:6 %rd:6 %rs:6 %rt:6";
+  ac_format PL20  = "%op:6 %ext1:2 %ext2:4                     %imm:14:s %rt:6";
+  ac_format PL18  = "%op:6 %ext1:2 %ext2:4 %ext3:2           %rd:6 %rs:6 %rt:6";
+  ac_format PL18i = "%op:6 %ext1:2 %ext2:4 %ext3:2                    %pl18:18";
   ac_format PL16  =
-      "%op:6 %extop1:2 %extop2:4 %extop3:2 %extop4:2             %halfword:16:s";
+      "%op:6 %ext1:2 %ext2:4 %ext3:2 %ext4:2                    %halfword:16:s";
   ac_format PL12  =
-      "%op:6 %extop1:2 %extop2:4 %extop3:2 %extop4:2 %extop5:4     %rs:6 %rt:6";
+      "%op:6 %ext1:2 %ext2:4 %ext3:2 %ext4:2 %ext5:4               %rs:6 %rt:6";
   ac_format PL6   =
-      "%op:6 %extop1:2 %extop2:4 %extop3:2 %extop4:2 %extop5:4 %extop6:6 %rt:6";
+      "%op:6 %ext1:2 %ext2:4 %ext3:2 %ext4:2 %ext5:4 %ext6:6             %rt:6";
   ac_format PL0   =
-  "%op:6 %extop1:2 %extop2:4 %extop3:2 %extop4:2 %extop5:4 %extop6:6 %extop7:6";
+      "%op:6 %ext1:2 %ext2:4 %ext3:2 %ext4:2 %ext5:4 %ext6:6 %ext7:6";
 
   // Core instructions
   ac_instr<PL26j> jump;
@@ -209,403 +209,403 @@ AC_ISA(openisa){
     // PL24 instructions
 
     mul.set_asm("mul %reg, %reg, %reg, %reg", rv, rd, rs, rt);
-    mul.set_decoder(op=0x1d, extop1=0);
+    mul.set_decoder(op=0x1d, ext1=0);
 
     div.set_asm("div %reg, %reg, %reg, %reg", rv, rd, rs, rt);
-    div.set_decoder(op=0x1d, extop1=1);
+    div.set_decoder(op=0x1d, ext1=1);
 
     divu.set_asm("divu %reg, %reg, %reg, %reg", rv, rd, rs, rt);
-    divu.set_decoder(op=0x1d, extop1=2);
+    divu.set_decoder(op=0x1d, ext1=2);
 
     ext.set_asm("ext %reg, %reg, %imm, %imm", rd, rs, rv, rt);
-    ext.set_decoder(op=0x1d, extop1=3);
+    ext.set_decoder(op=0x1d, ext1=3);
 
     mulu.set_asm("mulu %reg, %reg, %reg, %reg", rv, rd, rs, rt);
-    mulu.set_decoder(op=0x25, extop1=0);
+    mulu.set_decoder(op=0x25, ext1=0);
 
     // PL24 FPU instructions
 
     maddd.set_asm("madd.d %reg, %reg, %reg, %reg", rd, rv, rs, rt);
-    maddd.set_decoder(op=0x1e, extop1=0);
+    maddd.set_decoder(op=0x1e, ext1=0);
 
     madds.set_asm("madd.s %reg, %reg, %reg, %reg", rd, rv, rs, rt);
-    madds.set_decoder(op=0x1e, extop1=1);
+    madds.set_decoder(op=0x1e, ext1=1);
 
     msubd.set_asm("msub.d %reg, %reg, %reg, %reg", rd, rv, rs, rt);
-    msubd.set_decoder(op=0x1e, extop1=2);
+    msubd.set_decoder(op=0x1e, ext1=2);
 
     msubs.set_asm("msub.s %reg, %reg, %reg, %reg", rs, rv, rs, rt);
-    msubs.set_decoder(op=0x1e, extop1=3);
+    msubs.set_decoder(op=0x1e, ext1=3);
 
     // PL20 instructions
 
     jlez.set_asm("jlez %reg, %exp(pcrel)", rt, imm);
-    jlez.set_decoder  (op=0x1f, extop1=0, extop2=0);
+    jlez.set_decoder  (op=0x1f, ext1=0, ext2=0);
 
     jgtz.set_asm("jgtz %reg, %exp(pcrel)", rt, imm);
-    jgtz.set_decoder  (op=0x1f, extop1=0, extop2=1);
+    jgtz.set_decoder  (op=0x1f, ext1=0, ext2=1);
 
     jltz.set_asm("jltz %reg, %exp(pcrel)", rt, imm);
-    jltz.set_decoder  (op=0x1f, extop1=0, extop2=2);
+    jltz.set_decoder  (op=0x1f, ext1=0, ext2=2);
 
     jgez.set_asm("jgez %reg, %exp(pcrel)", rt, imm);
-    jgez.set_decoder  (op=0x1f, extop1=0, extop2=3);
+    jgez.set_decoder  (op=0x1f, ext1=0, ext2=3);
 
     ldi.set_asm("ldi %reg, %imm", rt, imm);
-    ldi.set_decoder  (op=0x1f, extop1=0, extop2=4);
+    ldi.set_decoder  (op=0x1f, ext1=0, ext2=4);
 
     // PL18 instructions
     add.set_asm("add %reg, %reg, %reg", rd, rs, rt);
-    add.set_decoder (op=0x20, extop1=0, extop2=0x0, extop3=0);
+    add.set_decoder (op=0x20, ext1=0, ext2=0x0, ext3=0);
 
     sub.set_asm("sub %reg, %reg, %reg", rd, rs, rt);
-    sub.set_decoder (op=0x20, extop1=0, extop2=0x0, extop3=2);
+    sub.set_decoder (op=0x20, ext1=0, ext2=0x0, ext3=2);
 
     slt.set_asm("slt %reg, %reg, %reg", rd, rs, rt);
-    slt.set_decoder (op=0x20, extop1=0, extop2=0x1, extop3=0);
+    slt.set_decoder (op=0x20, ext1=0, ext2=0x1, ext3=0);
 
     sltu.set_asm("sltu %reg, %reg, %reg", rd, rs, rt);
-    sltu.set_decoder(op=0x20, extop1=0, extop2=0x1, extop3=1);
+    sltu.set_decoder(op=0x20, ext1=0, ext2=0x1, ext3=1);
 
     instr_and.set_asm("and %reg, %reg, %reg", rd, rs, rt);
-    instr_and.set_decoder(op=0x20, extop1=0, extop2=0x1, extop3=2);
+    instr_and.set_decoder(op=0x20, ext1=0, ext2=0x1, ext3=2);
 
     instr_or.set_asm("or %reg, %reg, %reg", rd, rs, rt);
-    instr_or.set_decoder (op=0x20, extop1=0, extop2=0x1, extop3=3);
+    instr_or.set_decoder (op=0x20, ext1=0, ext2=0x1, ext3=3);
 
     instr_xor.set_asm("xor  %reg, %reg, %reg", rd, rs, rt);
-    instr_xor.set_decoder(op=0x20, extop1=0, extop2=0x2, extop3=0);
+    instr_xor.set_decoder(op=0x20, ext1=0, ext2=0x2, ext3=0);
 
     instr_nor.set_asm("nor  %reg, %reg, %reg", rd, rs, rt);
-    instr_nor.set_decoder(op=0x20, extop1=0, extop2=0x2, extop3=1);
+    instr_nor.set_decoder(op=0x20, ext1=0, ext2=0x2, ext3=1);
 
     shl.set_asm("shl %reg, %reg, %imm", rd, rt, rs);
-    shl.set_decoder (op=0x20, extop1=0, extop2=0x2, extop3=2);
+    shl.set_decoder (op=0x20, ext1=0, ext2=0x2, ext3=2);
 
     shr.set_asm("shr %reg, %reg, %imm", rd, rt, rs);
-    shr.set_decoder (op=0x20, extop1=0, extop2=0x2, extop3=3);
+    shr.set_decoder (op=0x20, ext1=0, ext2=0x2, ext3=3);
 
     asr.set_asm("asr %reg, %reg, %imm", rd, rt, rs);
-    asr.set_decoder (op=0x20, extop1=0, extop2=0x3, extop3=0);
+    asr.set_decoder (op=0x20, ext1=0, ext2=0x3, ext3=0);
 
     shlr.set_asm("shlr %reg, %reg, %reg", rd, rt, rs);
     shlr.set_asm("shl  %reg, %reg, %reg", rd, rt, rs);  // gas
-    shlr.set_decoder(op=0x20, extop1=0, extop2=0x3, extop3=1);
+    shlr.set_decoder(op=0x20, ext1=0, ext2=0x3, ext3=1);
 
     shrr.set_asm("shrr %reg, %reg, %reg", rd, rt, rs);
     shrr.set_asm("shr  %reg, %reg, %reg", rd, rt, rs);  // gas
-    shrr.set_decoder(op=0x20, extop1=0, extop2=0x3, extop3=2);
+    shrr.set_decoder(op=0x20, ext1=0, ext2=0x3, ext3=2);
 
     asrr.set_asm("asrr %reg, %reg, %reg", rd, rt, rs);
     asrr.set_asm("asr  %reg, %reg, %reg", rd, rt, rs);  // gas
-    asrr.set_decoder(op=0x20, extop1=0, extop2=0x3, extop3=3);
+    asrr.set_decoder(op=0x20, ext1=0, ext2=0x3, ext3=3);
 
     movz.set_asm("movz %reg, %reg, %reg", rd, rs, rt);
-    movz.set_decoder(op=0x20, extop1=0, extop2=0x4, extop3=0);
+    movz.set_decoder(op=0x20, ext1=0, ext2=0x4, ext3=0);
 
     movn.set_asm("movn %reg, %reg, %reg", rd, rs, rt);
-    movn.set_decoder(op=0x20, extop1=0, extop2=0x4, extop3=1);
+    movn.set_decoder(op=0x20, ext1=0, ext2=0x4, ext3=1);
 
     ror.set_asm("ror %reg, %reg, %imm", rd, rt, rs);
-    ror.set_decoder (op=0x20, extop1=0, extop2=0x4, extop3=2);
+    ror.set_decoder (op=0x20, ext1=0, ext2=0x4, ext3=2);
 
     rorr.set_asm("rorr %reg, %reg, %reg", rd, rt, rs);
-    rorr.set_decoder(op=0x20, extop1=0, extop2=0x4, extop3=3);
+    rorr.set_decoder(op=0x20, ext1=0, ext2=0x4, ext3=3);
 
     // PL18 FPU instructions
     addd.set_asm("add.d %freg, %freg, %freg", rd, rt, rs);
-    addd.set_decoder(op=0x20, extop1=0, extop2=0x5, extop3=0);
+    addd.set_decoder(op=0x20, ext1=0, ext2=0x5, ext3=0);
 
     adds.set_asm("add.s %freg, %freg, %freg", rd, rt, rs);
-    adds.set_decoder(op=0x20, extop1=0, extop2=0x5, extop3=1);
+    adds.set_decoder(op=0x20, ext1=0, ext2=0x5, ext3=1);
 
     divd.set_asm("div.d %freg, %freg, %freg", rd, rt, rs);
-    divd.set_decoder(op=0x20, extop1=0, extop2=0x5, extop3=2);
+    divd.set_decoder(op=0x20, ext1=0, ext2=0x5, ext3=2);
 
     divs.set_asm("div.s %freg, %freg, %freg", rd, rt, rs);
-    divs.set_decoder(op=0x20, extop1=0, extop2=0x5, extop3=3);
+    divs.set_decoder(op=0x20, ext1=0, ext2=0x5, ext3=3);
 
     muld.set_asm("mul.d %freg, %freg, %freg", rd, rt, rs);
-    muld.set_decoder(op=0x20, extop1=0, extop2=0x6, extop3=0);
+    muld.set_decoder(op=0x20, ext1=0, ext2=0x6, ext3=0);
 
     muls.set_asm("mul.s %freg, %freg, %freg", rd, rt, rs);
-    muls.set_decoder(op=0x20, extop1=0, extop2=0x6, extop3=1);
+    muls.set_decoder(op=0x20, ext1=0, ext2=0x6, ext3=1);
 
     subd.set_asm("sub.d %freg, %freg, %freg", rd, rt, rs);
-    subd.set_decoder(op=0x20, extop1=0, extop2=0x6, extop3=2);
+    subd.set_decoder(op=0x20, ext1=0, ext2=0x6, ext3=2);
 
     subs.set_asm("sub.s %freg, %freg, %freg", rd, rt, rs);
-    subs.set_decoder(op=0x20, extop1=0, extop2=0x6, extop3=3);
+    subs.set_decoder(op=0x20, ext1=0, ext2=0x6, ext3=3);
 
     movzd.set_asm("movz.d %freg, %freg, %reg", rd, rs, rt);
-    movzd.set_decoder(op=0x20, extop1=0, extop2=0x7, extop3=0);
+    movzd.set_decoder(op=0x20, ext1=0, ext2=0x7, ext3=0);
 
     movzs.set_asm("movz.s %freg, %freg, %reg", rd, rs, rt);
-    movzs.set_decoder(op=0x20, extop1=0, extop2=0x7, extop3=1);
+    movzs.set_decoder(op=0x20, ext1=0, ext2=0x7, ext3=1);
 
     movnd.set_asm("movn.d %freg, %freg, %reg", rd, rs, rt);
-    movnd.set_decoder(op=0x20, extop1=0, extop2=0x7, extop3=2);
+    movnd.set_decoder(op=0x20, ext1=0, ext2=0x7, ext3=2);
 
     movns.set_asm("movn.s %freg, %freg, %reg", rd, rs, rt);
-    movns.set_decoder(op=0x20, extop1=0, extop2=0x7, extop3=3);
+    movns.set_decoder(op=0x20, ext1=0, ext2=0x7, ext3=3);
 
     ldxc1.set_asm("ldxc1 %freg, %reg (%reg)", rd, rt, rs);
-    ldxc1.set_decoder(op=0x20, extop1=0, extop2=0x8, extop3=0);
+    ldxc1.set_decoder(op=0x20, ext1=0, ext2=0x8, ext3=0);
 
     sdxc1.set_asm("sdxc1 %freg, %reg (%reg)", rd, rt, rs);
-    sdxc1.set_decoder(op=0x20, extop1=0, extop2=0x8, extop3=1);
+    sdxc1.set_decoder(op=0x20, ext1=0, ext2=0x8, ext3=1);
 
     lwxc1.set_asm("lwxc1 %freg, %reg (%reg)", rd, rt, rs);
-    lwxc1.set_decoder(op=0x20, extop1=0, extop2=0x8, extop3=2);
+    lwxc1.set_decoder(op=0x20, ext1=0, ext2=0x8, ext3=2);
 
     swxc1.set_asm("swxc1 %freg, %reg (%reg)", rd, rt, rs);
-    swxc1.set_decoder(op=0x20, extop1=0, extop2=0x8, extop3=3);
+    swxc1.set_decoder(op=0x20, ext1=0, ext2=0x8, ext3=3);
 
     // PL18i instructions
     ldihi.set_asm("ldihi %imm", pl18);
-    ldihi.set_decoder(op=0x20, extop1=0, extop2=0, extop3=1);
+    ldihi.set_decoder(op=0x20, ext1=0, ext2=0, ext3=1);
 
     // PL16 instructions
 
     bc1t.set_asm("bc1t %exp(pcrel)", halfword);
-    bc1t.set_decoder (op=0x21, extop1=0, extop2=0, extop3=0, extop4=0);
+    bc1t.set_decoder (op=0x21, ext1=0, ext2=0, ext3=0, ext4=0);
 
     bc1tl.set_asm("bc1t %exp(pcrel)", halfword);
-    bc1tl.set_decoder(op=0x21, extop1=0, extop2=0, extop3=0, extop4=1);
+    bc1tl.set_decoder(op=0x21, ext1=0, ext2=0, ext3=0, ext4=1);
 
     bc1f.set_asm("bc1f %exp(pcrel)", halfword);
-    bc1f.set_decoder (op=0x21, extop1=0, extop2=0, extop3=0, extop4=2);
+    bc1f.set_decoder (op=0x21, ext1=0, ext2=0, ext3=0, ext4=2);
 
     bc1fl.set_asm("bc1fl %exp(pcrel)", halfword);
-    bc1fl.set_decoder(op=0x21, extop1=0, extop2=0, extop3=0, extop4=3);
+    bc1fl.set_decoder(op=0x21, ext1=0, ext2=0, ext3=0, ext4=3);
 
     rcall.set_asm("rcall %exp(pcrel)", halfword);
-    rcall.set_decoder(op=0x21, extop1=0, extop2=0, extop3=1, extop4=3);
+    rcall.set_decoder(op=0x21, ext1=0, ext2=0, ext3=1, ext4=3);
 
     // PL12 instructions
     callr.set_asm("callr %reg, %imm", rs, rt);
-    callr.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=0,
-                      extop5=0);
+    callr.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=0,
+                      ext5=0);
 
     teq.set_asm("teq %reg, %reg", rs, rt);
-    teq.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=0,
-                    extop5=1);
+    teq.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=0,
+                    ext5=1);
 
     clz.set_asm("clz %reg, %reg", rs, rt);
-    clz.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=0,
-                    extop5=2);
+    clz.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=0,
+                    ext5=2);
 
     seb.set_asm("seb %reg, %reg", rs, rt);
-    seb.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=0,
-                    extop5=3);
+    seb.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=0,
+                    ext5=3);
 
     seh.set_asm("seh %reg, %reg", rs, rt);
-    seh.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=0,
-                    extop5=4);
+    seh.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=0,
+                    ext5=4);
 
     absd.set_asm("abs.d %freg, %freg", rs, rt);
-    absd.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=0,
-                    extop5=5);
+    absd.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=0,
+                    ext5=5);
 
     abss.set_asm("abs.s %freg, %freg", rs, rt);
-    abss.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=0,
-                    extop5=6);
+    abss.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=0,
+                    ext5=6);
 
     ceqd.set_asm("c.eq.d %freg, %freg", rs, rt);
-    ceqd.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=0,
-                    extop5=7);
+    ceqd.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=0,
+                    ext5=7);
 
     ceqs.set_asm("c.eq.s %freg, %freg", rs, rt);
-    ceqs.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=0,
-                    extop5=8);
+    ceqs.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=0,
+                    ext5=8);
 
     coled.set_asm("c.ole.d %freg, %freg", rs, rt);
-    coled.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=0,
-                    extop5=9);
+    coled.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=0,
+                    ext5=9);
 
     coles.set_asm("c.ole.s %freg, %freg", rs, rt);
-    coles.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=0,
-                    extop5=0xa);
+    coles.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=0,
+                    ext5=0xa);
 
     coltd.set_asm("c.olt.d %freg, %freg", rs, rt);
-    coltd.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=0,
-                    extop5=0xb);
+    coltd.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=0,
+                    ext5=0xb);
 
     colts.set_asm("c.olt.s %freg, %freg", rs, rt);
-    colts.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=0,
-                    extop5=0xc);
+    colts.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=0,
+                    ext5=0xc);
 
     cueqd.set_asm("c.ueq.d %freg, %freg", rs, rt);
-    cueqd.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=0,
-                    extop5=0xd);
+    cueqd.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=0,
+                    ext5=0xd);
 
     cueqs.set_asm("c.ueq.s %freg, %freg", rs, rt);
-    cueqs.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=0,
-                    extop5=0xe);
+    cueqs.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=0,
+                    ext5=0xe);
 
     culed.set_asm("c.ule.d %freg, %freg", rs, rt);
-    culed.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=0,
-                    extop5=0xf);
+    culed.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=0,
+                    ext5=0xf);
 
     cules.set_asm("c.ule.s %freg, %freg", rs, rt);
-    cules.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=1,
-                    extop5=0x0);
+    cules.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=1,
+                    ext5=0x0);
 
     cultd.set_asm("c.ult.d %freg, %freg", rs, rt);
-    cultd.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=1,
-                    extop5=0x1);
+    cultd.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=1,
+                    ext5=0x1);
 
     cults.set_asm("c.ult.s %freg, %freg", rs, rt);
-    cults.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=1,
-                    extop5=0x2);
+    cults.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=1,
+                    ext5=0x2);
 
     cund.set_asm("c.un.d %freg, %freg", rs, rt);
-    cund.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=1,
-                    extop5=0x3);
+    cund.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=1,
+                    ext5=0x3);
 
     cuns.set_asm("c.un.s %freg, %freg", rs, rt);
-    cuns.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=1,
-                    extop5=0x4);
+    cuns.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=1,
+                    ext5=0x4);
 
     cvtsd.set_asm("cvt.s.d %freg, %freg", rs, rt);
-    cvtsd.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=1,
-                    extop5=0x5);
+    cvtsd.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=1,
+                    ext5=0x5);
 
     cvtds.set_asm("cvt.d.s %freg, %freg", rs, rt);
-    cvtds.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=1,
-                    extop5=0x6);
+    cvtds.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=1,
+                    ext5=0x6);
 
     cvtdw.set_asm("cvt.d.w %freg, %freg", rs, rt);
-    cvtdw.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=1,
-                    extop5=0x7);
+    cvtdw.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=1,
+                    ext5=0x7);
 
     cvtsw.set_asm("cvt.s.w %freg, %freg", rs, rt);
-    cvtsw.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=1,
-                    extop5=0x8);
+    cvtsw.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=1,
+                    ext5=0x8);
 
     mfc1.set_asm("mfc1 %reg, %freg", rs, rt);
-    mfc1.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=1,
-                    extop5=0x9);
+    mfc1.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=1,
+                    ext5=0x9);
 
     movd.set_asm("mov.d %freg, %freg", rs, rt);
-    movd.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=1,
-                    extop5=0xa);
+    movd.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=1,
+                    ext5=0xa);
 
     movs.set_asm("mov.s %freg, %freg", rs, rt);
-    movs.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=1,
-                    extop5=0xb);
+    movs.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=1,
+                    ext5=0xb);
 
     mtc1.set_asm("mtc1 %reg, %freg", rs, rt);
-    mtc1.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=1,
-                    extop5=0xc);
+    mtc1.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=1,
+                    ext5=0xc);
 
     negd.set_asm("neg.d %freg, %freg", rs, rt);
-    negd.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=1,
-                    extop5=0xd);
+    negd.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=1,
+                    ext5=0xd);
 
     negs.set_asm("neg.s %freg, %freg", rs, rt);
-    negs.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=1,
-                    extop5=0xe);
+    negs.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=1,
+                    ext5=0xe);
 
     truncwd.set_asm("trunc.w.d %freg, %freg", rs, rt);
-    truncwd.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=1,
-                    extop5=0xf);
+    truncwd.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=1,
+                    ext5=0xf);
 
     truncws.set_asm("trunc.w.s %freg, %freg", rs, rt);
-    truncws.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=2,
-                    extop5=0x0);
+    truncws.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=2,
+                    ext5=0x0);
 
     sqrtd.set_asm("sqrt.d %freg, %freg", rs, rt);
-    sqrtd.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=2,
-                    extop5=0x1);
+    sqrtd.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=2,
+                    ext5=0x1);
 
     sqrts.set_asm("sqrt.s %freg, %freg", rs, rt);
-    sqrts.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=2,
-                    extop5=0x2);
+    sqrts.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=2,
+                    ext5=0x2);
 
     movtd.set_asm("movt.d %freg, %freg", rs, rt);
-    movtd.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=2,
-                    extop5=0x3);
+    movtd.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=2,
+                    ext5=0x3);
 
     movts.set_asm("movt.s %freg, %freg", rs, rt);
-    movts.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=2,
-                    extop5=0x4);
+    movts.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=2,
+                    ext5=0x4);
 
     movfd.set_asm("movf.d %freg, %freg", rs, rt);
-    movfd.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=2,
-                    extop5=0x5);
+    movfd.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=2,
+                    ext5=0x5);
 
     movfs.set_asm("movf.s %freg, %freg", rs, rt);
-    movfs.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=2,
-                    extop5=0x6);
+    movfs.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=2,
+                    ext5=0x6);
 
     movf.set_asm("movf %reg, %reg", rs, rt);
-    movf.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=2,
-                    extop5=0x7);
+    movf.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=2,
+                    ext5=0x7);
 
     movt.set_asm("movt %reg, %reg", rs, rt);
-    movt.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=2,
-                    extop5=0x8);
+    movt.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=2,
+                    ext5=0x8);
 
     mfhc1.set_asm("mfhc1 %reg, %freg", rs, rt);
-    mfhc1.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=2,
-                    extop5=0x9);
+    mfhc1.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=2,
+                    ext5=0x9);
 
     mthc1.set_asm("mthc1 %reg, %freg", rs, rt);
-    mthc1.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=2,
-                    extop5=0xa);
+    mthc1.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=2,
+                    ext5=0xa);
 
     roundwd.set_asm("round.w.d %reg, %freg", rs, rt);
-    roundwd.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=2,
-                        extop5=0xb);
+    roundwd.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=2,
+                        ext5=0xb);
 
     roundws.set_asm("round.w.s %reg, %freg", rs, rt);
-    roundws.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=2,
-                        extop5=0xc);
+    roundws.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=2,
+                        ext5=0xc);
 
     ceilwd.set_asm("ceil.w.d %reg, %freg", rs, rt);
-    ceilwd.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=2,
-                        extop5=0xd);
+    ceilwd.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=2,
+                        ext5=0xd);
 
     ceilws.set_asm("ceil.w.s %reg, %freg", rs, rt);
-    ceilws.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=2,
-                        extop5=0xe);
+    ceilws.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=2,
+                        ext5=0xe);
 
     floorwd.set_asm("floor.w.d %reg, %freg", rs, rt);
-    floorwd.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=2,
-                        extop5=0xf);
+    floorwd.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=2,
+                        ext5=0xf);
 
     floorws.set_asm("floor.w.s %reg, %freg", rs, rt);
-    floorws.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=3,
-                        extop5=0x0);
+    floorws.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=3,
+                        ext5=0x0);
 
     mflc1.set_asm("mflc1 %reg, %freg", rs, rt);
-    mflc1.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=3,
-                    extop5=0x1);
+    mflc1.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=3,
+                    ext5=0x1);
 
     mtlc1.set_asm("mtlc1 %reg, %freg", rs, rt);
-    mtlc1.set_decoder(op=0x22, extop1=0, extop2=0, extop3=0, extop4=3,
-                    extop5=0x2);
+    mtlc1.set_decoder(op=0x22, ext1=0, ext2=0, ext3=0, ext4=3,
+                    ext5=0x2);
 
     // PL6 instructions
 
     jumpr.set_asm("jumpr %reg", rt);
-    jumpr.set_decoder(op=0x23, extop1=0, extop2=0, extop3=0, extop4=0,
-                      extop5=0, extop6=0);
+    jumpr.set_decoder(op=0x23, ext1=0, ext2=0, ext3=0, ext4=0,
+                      ext5=0, ext6=0);
 
     // PL0 instructions
 
     instr_break.set_asm("break");
-    instr_break.set_decoder(op=0x24, extop1=0, extop2=0, extop3=0, extop4=0,
-                            extop5=0, extop6=0, extop7=0);
+    instr_break.set_decoder(op=0x24, ext1=0, ext2=0, ext3=0, ext4=0,
+                            ext5=0, ext6=0, ext7=0);
 
     sys_call.set_asm("syscall");
-    sys_call.set_decoder(op=0x24, extop1=0, extop2=0, extop3=0, extop4=0,
-                         extop5=0, extop6=0, extop7=1);
+    sys_call.set_decoder(op=0x24, ext1=0, ext2=0, ext3=0, ext4=0,
+                         ext5=0, ext6=0, ext7=1);
 
     sync.set_asm("sync");
-    sync.set_decoder(op=0x24, extop1=0, extop2=0, extop3=0, extop4=0,
-                     extop5=0, extop6=0, extop7=2);
+    sync.set_decoder(op=0x24, ext1=0, ext2=0, ext3=0, ext4=0,
+                     ext5=0, ext6=0, ext7=2);
 
   };
 
