@@ -16,6 +16,7 @@ AC_ARCH(openisa){
   ac_reg id;
   ac_reg cc;
   ac_reg ldireg;
+  ac_reg ijmpreg;
   ac_wordsize 32;
 
   ARCH_CTOR(openisa) {

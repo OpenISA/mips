@@ -7,8 +7,10 @@ AC_ISA(openisa){
   ac_format PL26j = "%op:6                                           %laddr:26";
   ac_format PL26c = "%op:6                                     %num:6 %addr:20";
   ac_format PL26i = "%op:6                               %imm:14:s %rs:6 %rt:6";
+  ac_format PL26ij= "%op:6                           %pl12:12 %index:6 %count:8";
   ac_format PL24  = "%op:6 %ext1:2                     %rv:6 %rd:6 %rs:6 %rt:6";
   ac_format PL20  = "%op:6 %ext1:2 %ext2:4                     %imm:14:s %rt:6";
+  ac_format PL20i = "%op:6 %ext1:2 %ext2:4                            %pl20:20";
   ac_format PL18  = "%op:6 %ext1:2 %ext2:4 %ext3:2           %rd:6 %rs:6 %rt:6";
   ac_format PL18i = "%op:6 %ext1:2 %ext2:4 %ext3:2                    %pl18:18";
   ac_format PL16  =
@@ -27,10 +29,12 @@ AC_ISA(openisa){
   ac_instr<PL26i> stb, sth, stw, stwl, stwr;
   ac_instr<PL26i> addi, slti, sltiu, andi, ori, xori;
   ac_instr<PL26i> jeq, jne, ll, sc;
+  ac_instr<PL26ij> ijmp;
 
   ac_instr<PL24> mul, mulu, div, divu, ext;
 
   ac_instr<PL20> jlez, jgtz, jltz, jgez, ldi;
+  ac_instr<PL20i> ijmphi;
 
   ac_instr<PL18> add, sub, slt, sltu;
   ac_instr<PL18> instr_and, instr_or, instr_xor, instr_nor;
@@ -206,6 +210,10 @@ AC_ISA(openisa){
     lwc1.set_asm("lwc1 %freg, %imm (%reg)", rt, imm, rs);
     lwc1.set_decoder(op=0x1c);
 
+    // PL26ij instruction
+    ijmp.set_asm("ijmp %imm (%reg), %imm", pl12, index, count);
+    ijmp.set_decoder(op=0x26);
+
     // PL24 instructions
 
     mul.set_asm("mul %reg, %reg, %reg, %reg", rv, rd, rs, rt);
@@ -253,6 +261,10 @@ AC_ISA(openisa){
 
     ldi.set_asm("ldi %reg, %imm", rt, imm);
     ldi.set_decoder  (op=0x1f, ext1=0, ext2=4);
+
+    // PL20i instructions
+    ijmphi.set_asm("ijmphi %imm", pl20);
+    ijmphi.set_decoder(op=0x1f, ext1=1, ext2=0);
 
     // PL18 instructions
     add.set_asm("add %reg, %reg, %reg", rd, rs, rt);
