@@ -7,7 +7,7 @@ AC_ISA(openisa){
   ac_format PL26j = "%op:6                                           %laddr:26";
   ac_format PL26c = "%op:6                                     %num:6 %addr:20";
   ac_format PL26i = "%op:6                               %imm:14:s %rs:6 %rt:6";
-  ac_format PL26ij= "%op:6                           %pl12:12 %index:6 %count:8";
+  ac_format PL26ij= "%op:6                          %pl12:12 %index:6 %count:8";
   ac_format PL24  = "%op:6 %ext1:2                     %rv:6 %rd:6 %rs:6 %rt:6";
   ac_format PL20  = "%op:6 %ext1:2 %ext2:4                     %imm:14:s %rt:6";
   ac_format PL20i = "%op:6 %ext1:2 %ext2:4                            %pl20:20";

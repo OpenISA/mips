@@ -491,18 +491,19 @@ void ac_behavior(rcall) {
 
 void ac_behavior(ijmp) {
   dbg_printf("ijmp %d(r%d), %d\n", pl12, index, count);
-  RB[ijmpreg] &= 0xFFFFF000;
-  RB[ijmpreg] |= pl12 & 0xFFF;
-  uint32_t Target = DATA_PORT->read(RB[ijmpreg] + RB[index]);
+  ijmpreg &= 0xFFFFF000;
+  ijmpreg |= pl12 & 0xFFF;
+  uint32_t Target = DATA_PORT->read(ijmpreg + RB[index]);
   ac_pc = Target;
+  dbg_printf("Jump table base = %#x\n", ijmpreg);
   dbg_printf("Target = %#x\n", Target);
 }
 
 void ac_behavior(ijmphi) {
   dbg_printf("ijmphi %d\n", pl20 & 0xFFFFF);
-  RB[ijmpreg] = 0;
-  RB[ijmpreg] |= pl20 << 12;
-  dbg_printf("Result is: %#x\n", RB[ijmpreg]);
+  ijmpreg = 0;
+  ijmpreg |= pl20 << 12;
+  dbg_printf("Result is: %#x\n", ijmpreg);
 }
 
 void ac_behavior(ldihi) {
