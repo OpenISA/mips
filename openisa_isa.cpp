@@ -495,7 +495,7 @@ void ac_behavior(ijmp) {
   ijmpreg |= pl12 & 0xFFF;
   uint32_t Target = DATA_PORT->read(ijmpreg + RB[index]);
   ac_pc = Target;
-  dbg_printf("Jump table base = %#x\n", ijmpreg);
+  dbg_printf("Jump table base = %#x\n", ijmpreg.read());
   dbg_printf("Target = %#x\n", Target);
 }
 
@@ -503,7 +503,7 @@ void ac_behavior(ijmphi) {
   dbg_printf("ijmphi %d\n", pl20 & 0xFFFFF);
   ijmpreg = 0;
   ijmpreg |= pl20 << 12;
-  dbg_printf("Result is: %#x\n", ijmpreg);
+  dbg_printf("Result is: %#x\n", ijmpreg.read());
 }
 
 void ac_behavior(ldihi) {
