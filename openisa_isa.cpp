@@ -7,12 +7,14 @@
 #include <cfenv>
 
 // If you want debug information for this model, uncomment next line
-//#define DEBUG_MODEL
+#define DEBUG_MODEL
 #include "ac_debug_model.H"
 
 //! User defined macros to reference registers.
 #define Ra 31
 #define Sp 29
+
+#include <iostream>
 
 // 'using namespace' statement to allow access to all
 // openisa-specific datatypes
@@ -27,20 +29,26 @@ void ac_behavior(instruction) {
   ac_pc += 4;
 };
 
+#define printAll() //std::cerr << (int) ac_pc << "\n";\
+                   //for (int i = 0; i < 64; i++) std::cerr << RB[i] << " ";\
+//                   for (int i = 0; i < 64; i++) std::cerr << load_float(i) << " ";\
+//                   for (int i = 0; i < 64; i++) std::cerr << load_double(i) << " ";\
+
+
 //  Instruction Format behavior methods.
-void ac_behavior(PL26j) {}
-void ac_behavior(PL26c) {}
-void ac_behavior(PL26i) {}
-void ac_behavior(PL26ij) {}
-void ac_behavior(PL24) {}
-void ac_behavior(PL20) {}
-void ac_behavior(PL20i) {}
-void ac_behavior(PL18i) {}
-void ac_behavior(PL18) {}
-void ac_behavior(PL16) {}
-void ac_behavior(PL12) {}
-void ac_behavior(PL6) {}
-void ac_behavior(PL0) {}
+void ac_behavior(PL26j) { printAll(); }
+void ac_behavior(PL26c) { printAll(); }
+void ac_behavior(PL26i) { printAll(); }
+void ac_behavior(PL26ij){ printAll(); }
+void ac_behavior(PL24)  { printAll(); }
+void ac_behavior(PL20)  { printAll(); }
+void ac_behavior(PL20i) { printAll(); }
+void ac_behavior(PL18i) { printAll(); }
+void ac_behavior(PL18)  { printAll(); }
+void ac_behavior(PL16)  { printAll(); }
+void ac_behavior(PL12)  { printAll(); }
+void ac_behavior(PL6)   { printAll(); }
+void ac_behavior(PL0)   { printAll(); }
 
 // Behavior called before starting simulation
 void ac_behavior(begin) {
@@ -245,7 +253,7 @@ void ac_behavior(coles) {
   float a = load_float(rs);
   float b = load_float(rt);
   cc = a <= b ? (custom_isnanf(a) || custom_isnanf(b) ? 0 : 1) : 0;
-  dbg_printf("Result = %d\n", cc.read());
+  dbg_printf("Result = %d %f == %f\n", cc.read(), a, b);
 }
 
 void ac_behavior(coltd) {
@@ -350,12 +358,12 @@ void ac_behavior(divd) {
 void ac_behavior(divs) {
   dbg_printf("div.s %%f%d, %%f%d, %%f%d\n", rd, rs, rt);
   float res = load_float(rs) / load_float(rt);
+  dbg_printf("Result = %f %f/%f\n", res, load_float(rs), load_float(rt));
   save_float(res, rd);
-  dbg_printf("Result = %f\n", res);
 }
 
 void ac_behavior(mfc1) {
-  dbg_printf("mfc1 %%%d, %%f%d\n", rs, rt);
+  dbg_printf("mfc1 %%%d, %%f%d (%f)\n", rs, rt, RBS[rt]);
   RB[rs] = RBS[rt];
   dbg_printf("Result = 0x%X\n", RB[rs]);
 }
@@ -391,6 +399,7 @@ void ac_behavior(muls) {
 void ac_behavior(mtc1) {
   dbg_printf("mtc1 %%%d, %%f%d\n", rs, rt);
   RBS[rt] = RB[rs];
+  dbg_printf("Result = %f from %d\n", RBS[rt], RB[rs]);
 }
 
 void ac_behavior(negd) {
@@ -994,10 +1003,10 @@ void ac_behavior(seh) {
 
 void ac_behavior(ext) {
   dbg_printf("ext r%d, r%d, %d, %d\n", rd, rs, rv, rt);
-  uint32_t lsb = rv;
+  uint32_t lsb = rs;
   uint32_t size = rt + 1;
-  RB[rd] = (RB[rs] << (32 - size - lsb)) >> (32 - size);
-  dbg_printf("Result = %#x\n", RB[rd]);
+  RB[rv] = (RB[rd] << (32 - size - lsb)) >> (32 - size);
+  dbg_printf("Result = %#x\n", RB[rv]);
 }
 
 void ac_behavior(ror) {
@@ -1150,7 +1159,7 @@ void ac_behavior(madds) {
   dbg_printf("madd.s %%f%d, %%f%d, %%f%d, %%f%d\n", rd, rv, rs, rt);
   float res = load_float(rs) * load_float(rt) + load_float(rv);
   save_float(res, rd);
-  dbg_printf("Result = %f\n", res);
+  dbg_printf("Result = %f %d\n", res, (int)rv);
 }
 
 void ac_behavior(msubd) {
